@@ -1,6 +1,6 @@
-[[https://travis-ci.org/orgzly/org-java.svg?branch=master]]
+[[https://github.com/orgzly-revived/org-java/actions/workflows/test.yml/badge.svg]]
 
-*[[http://orgmode.org/][Org files]] parser used by [[https://www.orgzly.com][Orgzly]]*
+*[[http://orgmode.org/][Org files]] parser used by [[https://github.com/orgzly-revived][Orgzly Revived]]*
 
 * Installation
 
@@ -8,20 +8,20 @@
 
 #+BEGIN_SRC xml
 <dependency>
-  <groupId>com.orgzly</groupId>
+  <groupId>com.orgzlyrevived</groupId>
   <artifactId>org-java</artifactId>
-  <version>1.2.2</version>
+  <version>1.3.0</version>
 </dependency>
 #+END_SRC
 
 ** Gradle
 
 #+BEGIN_SRC groovy
-  compile 'com.orgzly:org-java:1.2.2'
+  compile 'com.orgzlyrevived:org-java:1.3.0'
 #+END_SRC
 
 ** SBT
 
 #+BEGIN_SRC scala
-  libraryDependencies += "com.orgzly" % "org-java" % "1.2.2"
+  libraryDependencies += "com.orgzlyrevived" % "org-java" % "1.3.0"
 #+END_SRC
