@@ -31,19 +31,19 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
 
-            groupId = 'com.orgzly'
+            groupId = 'com.orgzlyrevived'
             artifactId = 'org-java'
             version = VERSION_NAME
 
             pom {
                 name = 'org-java'
                 description = 'Org files parser and generator'
-                url = 'https://github.com/orgzly/org-java'
+                url = 'https://github.com/orgzly-revived/org-java'
 
                 scm {
-                    url = "http://github.com/orgzly/org-java"
-                    connection = "scm:git:http://github.com/orgzly/org-java.git"
-                    developerConnection = "scm:git:git@github.com:orgzly/org-java.git"
+                    url = "http://github.com/orgzly-revived/org-java"
+                    connection = "scm:git:http://github.com/orgzly-revived/org-java.git"
+                    developerConnection = "scm:git:git@github.com:orgzly-revived/org-java.git"
                 }
 
                 licenses {
@@ -66,19 +66,16 @@ publishing {
 
     repositories {
         maven {
-            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
-
-            url = isReleaseBuild() ? releasesRepoUrl : snapshotsRepoUrl
-
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/" + System.getenv("GITHUB_REPOSITORY")
             credentials {
-                username = ossrhUsername
-                password = ossrhPassword
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
 }
 
-signing {
-    sign publishing.publications.mavenJava
-}
+//signing {
+//    sign publishing.publications.mavenJava
+//}
