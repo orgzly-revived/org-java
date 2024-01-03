@@ -204,11 +204,13 @@ public class OrgParserWriter {
         if (head.hasContent()) {
             /*
              * Separate content from header with an empty line,
-             * unless it starts with following strings.
+             * unless it starts with following strings or a custom drawer.
              * Until LOGBOOK and CLOCK support is added.
              */
             String content = head.getContent().trim();
-            if (!content.startsWith(":LOGBOOK:") && !content.startsWith("CLOCK: ") && !isLogNoteHeading(content)) {
+            String firstLine = content.split("\n")[0].trim();
+            if (!content.startsWith(":LOGBOOK:") && !content.startsWith("CLOCK: ")
+                    && !isLogNoteHeading(content) && !lineStartswithDrawer(firstLine)) {
                 if (settings.separateHeaderAndContentWithNewLine) {
                     s.append("\n");
                 }
@@ -258,6 +260,11 @@ public class OrgParserWriter {
             }
         }
         return false;
+    }
+
+    private boolean lineStartswithDrawer(String line) {
+        // example of a drawer: :BACKLINKS:
+        return line.startsWith(":") && line.endsWith(":");
     }
 
     /** Append (level + 1) spaces. */

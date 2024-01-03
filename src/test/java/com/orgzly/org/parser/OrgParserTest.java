@@ -406,6 +406,39 @@ public class OrgParserTest extends OrgTestParser {
     }
 
     @Test
+    public void testSeparateHeaderDrawerContent1() throws Exception {
+        // test that we don't prepend content with a newline if content starts with a drawer
+        // fixes https://github.com/orgzly-revived/orgzly-android-revived/issues/95
+        OrgParserSettings settings = new OrgParserSettings();
+        settings.separateHeaderAndContentWithNewLine = true;
+        parserWriter = new OrgParserWriter(settings);
+
+        OrgHead head1 = new OrgHead("Title 1");
+        head1.setContent(":SOMEDRAWER:\nfoo\n:END:\n\nContent");
+        OrgNodeInList nodeInList1 = new OrgNodeInList(1, 1, head1);
+
+        String out = parserWriter.whiteSpacedFilePreface("") + parserWriter.whiteSpacedHead(nodeInList1, false);
+        Assert.assertEquals("* Title 1\n:SOMEDRAWER:\nfoo\n:END:\n\nContent\n\n", out);
+        // although `separateHeaderAndContentWithNewLine` is true, we don't expect extra new line at the end of the drawer
+        // since custom drawers are part of the content, which we currently don't modify during export
+    }
+
+    @Test
+    public void testSeparateHeaderDrawerContent0() throws Exception {
+        // test that we don't prepend content with a newline if content starts with a drawer
+        OrgParserSettings settings = new OrgParserSettings();
+        settings.separateHeaderAndContentWithNewLine = false;
+        parserWriter = new OrgParserWriter(settings);
+
+        OrgHead head1 = new OrgHead("Title 1");
+        head1.setContent(":SOMEDRAWER:\nfoo\n:END:\nContent");
+        OrgNodeInList nodeInList1 = new OrgNodeInList(1, 1, head1);
+
+        String out = parserWriter.whiteSpacedFilePreface("") + parserWriter.whiteSpacedHead(nodeInList1, false);
+        Assert.assertEquals("* Title 1\n:SOMEDRAWER:\nfoo\n:END:\nContent\n\n", out);
+    }
+
+    @Test
     public void testNotSeparateHeaderContent() throws Exception {
         OrgParserSettings settings = new OrgParserSettings();
         settings.separateHeaderAndContentWithNewLine = false;
