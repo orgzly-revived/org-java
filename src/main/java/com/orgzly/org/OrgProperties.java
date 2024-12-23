@@ -2,10 +2,9 @@ package com.orgzly.org;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.regex.Matcher;
 
 /**
  * a
@@ -151,5 +150,24 @@ public class OrgProperties {
 
     public boolean containsKey(String name) {
         return values.containsKey(name);
+    }
+
+    public static OrgProperties fromString(String preface) {
+        OrgProperties properties = new OrgProperties();
+        boolean inProperties = false;
+        for (String line : preface.split("\n")) {
+            String lineTrimmed = line.trim();
+            if (!inProperties && ":PROPERTIES:".equals(lineTrimmed)) {
+                inProperties = true;
+            } else if (inProperties && ":END:".equals(lineTrimmed)) {
+                inProperties = false;
+            } else if (inProperties) {
+                Matcher propertyMatcher = OrgPatterns.PROPERTY.matcher(lineTrimmed);
+                if (propertyMatcher.find()) {
+                    properties.put(propertyMatcher.group(1), propertyMatcher.group(2).trim());
+                }
+            }
+        }
+        return properties;
     }
 }
