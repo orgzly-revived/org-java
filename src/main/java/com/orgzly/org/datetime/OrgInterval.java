@@ -5,6 +5,7 @@ package com.orgzly.org.datetime;
  */
 public class OrgInterval {
     public enum Unit {
+        MINUTE, //  M
         HOUR,   //  h
         DAY,    //  d
         WEEK,   //  w
@@ -54,7 +55,10 @@ public class OrgInterval {
     }
 
     public void setUnit(String str) {
-        if ("h".equals(str)) {
+        if ("M".equals(str)) {
+            unit = Unit.MINUTE;
+
+        } else if ("h".equals(str)) {
             unit = Unit.HOUR;
 
         } else if ("d".equals(str)) {
@@ -80,6 +84,8 @@ public class OrgInterval {
 
     public String toString() {
        switch (unit) {
+           case MINUTE:
+               return value + "M";
            case HOUR:
                return value + "h";
            case DAY:
