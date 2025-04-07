@@ -10,18 +10,18 @@
 <dependency>
   <groupId>com.orgzlyrevived</groupId>
   <artifactId>org-java</artifactId>
-  <version>1.3.0</version>
+  <version>1.3.5</version>
 </dependency>
 #+END_SRC
 
 ** Gradle
 
 #+BEGIN_SRC groovy
-  compile 'com.orgzlyrevived:org-java:1.3.0'
+  compile 'com.orgzlyrevived:org-java:1.3.5'
 #+END_SRC
 
 ** SBT
 
 #+BEGIN_SRC scala
-  libraryDependencies += "com.orgzlyrevived" % "org-java" % "1.3.0"
+  libraryDependencies += "com.orgzlyrevived" % "org-java" % "1.3.5"
 #+END_SRC
