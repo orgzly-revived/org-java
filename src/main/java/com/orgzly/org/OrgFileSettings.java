@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
  */
 public class OrgFileSettings {
     public static final String TITLE = "TITLE";
+    public static final String FILETAGS = "FILETAGS";
 
     private String title;
 
@@ -75,6 +76,30 @@ public class OrgFileSettings {
         if (values == null || values.isEmpty())
             return null;
         return values.get(values.size() - 1);
+    }
+
+    /**
+     * Parse FILETAGS keyword values into individual tags.
+     * FILETAGS values use org-mode tag syntax: :tag1:tag2:tag3:
+     *
+     * @return list of individual tags from all FILETAGS entries, or empty list if none
+     */
+    public List<String> getFiletags() {
+        List<String> values = getKeywordValues(FILETAGS);
+        if (values == null || values.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<String> tags = new ArrayList<>();
+        for (String value : values) {
+            // Split on ':' delimiter, same as headline tags
+            for (String tag : value.split(":")) {
+                if (!OrgStringUtils.isEmpty(tag)) {
+                    tags.add(tag.trim());
+                }
+            }
+        }
+        return tags;
     }
 
     private void addKeywordSetting(String keyword, String value) {
