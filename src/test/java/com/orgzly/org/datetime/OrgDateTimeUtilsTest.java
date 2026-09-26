@@ -123,6 +123,51 @@ public class OrgDateTimeUtilsTest {
     }
 
     @Test
+    public void testRepeaterDoesNotReturnTimeBeforeInterval() {
+        assertThat(
+                toStringArray(OrgDateTimeUtils.getTimesInInterval(
+                        OrgDateTime.parse("<2017-03-10 Fri 16:00 +1w>"),
+                        DateTime.parse("2017-03-15T13:00:00"),
+                        null,
+                        0,
+                        true,
+                        null,
+                        1)),
+                is(toStringArray(Arrays.asList(
+                        DateTime.parse("2017-03-17T16:00:00")))));
+    }
+
+    @Test
+    public void testRepeaterOccurrenceInsideNarrowInterval() {
+        assertThat(
+                toStringArray(OrgDateTimeUtils.getTimesInInterval(
+                        OrgDateTime.parse("<2017-03-10 Fri 16:00 +1w>"),
+                        DateTime.parse("2017-03-17T15:59:00"),
+                        DateTime.parse("2017-03-17T16:01:00"),
+                        0,
+                        true,
+                        null,
+                        1)),
+                is(toStringArray(Arrays.asList(
+                        DateTime.parse("2017-03-17T16:00:00")))));
+    }
+
+    @Test
+    public void testHourlyRepeaterDoesNotReturnTimeBeforeInterval() {
+        assertThat(
+                toStringArray(OrgDateTimeUtils.getTimesInInterval(
+                        OrgDateTime.parse("<2024-04-11 Thu 08:00 +1h>"),
+                        DateTime.parse("2024-04-11T10:30:00"),
+                        null,
+                        0,
+                        true,
+                        null,
+                        1)),
+                is(toStringArray(Arrays.asList(
+                        DateTime.parse("2024-04-11T11:00:00")))));
+    }
+
+    @Test
     public void testWarningPeriod() {
         assertThat(
                 toStringArray(OrgDateTimeUtils.getTimesInInterval(

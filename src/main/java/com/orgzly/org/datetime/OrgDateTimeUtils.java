@@ -92,16 +92,21 @@ public class OrgDateTimeUtils {
                 int repeatTimes = (units + repeater.getValue() - 1) / repeater.getValue(); // ceil
                 int addUnits = repeater.getValue() * repeatTimes;
 
-                /* Time just after the interval we are interested in. */
+                /* Fast-forward close to the start of the interval. */
                 time = time.withFieldAdded(OrgDateTimeUtils.getDurationFieldType(repeater.getUnit()), addUnits);
 
-                System.out.println(
-                        "gap: " + gap
-                        + " intervalPeriod: " + intervalPeriod
-                        + " units: " + units
-                        + " repeatTimes: " + repeatTimes
-                        + " addUnits: " + addUnits
-                        + " time: " + time);
+                /*
+                 * Period#getValue() truncates partial periods. For example, a timestamp
+                 * six days before fromTime with a weekly repeater yields zero weeks
+                 * above. Make sure the first returned occurrence is never before the
+                 * inclusive lower bound.
+                 */
+                while (time.isBefore(fromTime)) {
+                    time = time.withFieldAdded(
+                            OrgDateTimeUtils.getDurationFieldType(repeater.getUnit()),
+                            repeater.getValue()
+                    );
+                }
             }
 
             // Shift time until it's out of the specified interval or limit is reached
