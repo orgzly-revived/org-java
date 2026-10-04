@@ -36,7 +36,35 @@ public class OrgDateTimeUtils {
             int dailyTimeOffset,
             boolean useRepeater,
             @Nullable OrgInterval warningPeriod,
-            int limit) {
+            int limit)
+    {
+        return getTimesInInterval(orgDateTime, fromTime, beforeTime, dailyTimeOffset, useRepeater, warningPeriod, limit, 0);
+    }
+
+    /**
+     * Returns list of {@link DateTime} that belong to specified {@link OrgDateTime}
+     * and are within specified time interval.
+     *
+     * @param orgDateTime {@link OrgDateTime}
+     * @param fromTime Inclusive
+     * @param beforeTime Exclusive. Can be null in which case limit has to be specified
+     * @param dailyTimeOffset Time to use when {@code orgDateTime} has no time part (minutes after midnight)
+     * @param useRepeater Use repeater from {@link OrgDateTime}
+     * @param warningPeriod Deadline warning period
+     * @param limit When {@code orgTime} has a repeater, limit the number of results to this number
+     * @param offsetMs Shift the whole event by this amount in milliseconds. Used to schedule notifications.
+     *
+     * @return List of times within specified interval
+     */
+    public static List<DateTime> getTimesInInterval(
+            @NotNull OrgDateTime orgDateTime,
+            @NotNull ReadableInstant fromTime,
+            @Nullable ReadableInstant beforeTime,
+            int dailyTimeOffset,
+            boolean useRepeater,
+            @Nullable OrgInterval warningPeriod,
+            int limit,
+            int offsetMs) {
 
         List<DateTime> result = new ArrayList<>();
 
@@ -54,6 +82,7 @@ public class OrgDateTimeUtils {
         }
 
         DateTime time = new DateTime(orgDateTime.getCalendar());
+        time = time.minusMillis(offsetMs);
 
         // System.out.println(originalOrgDateTime + " now " + orgDateTime + " (" + time + ") " + fromTime + " - " + beforeTime);
 
