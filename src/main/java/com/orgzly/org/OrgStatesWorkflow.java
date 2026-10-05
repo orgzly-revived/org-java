@@ -16,6 +16,29 @@ public class OrgStatesWorkflow {
         doneKeywords = d;
     }
 
+    /** {@code TODO(t)} and {@code WAIT(w@/!)} name the states {@code TODO} and {@code WAIT}. */
+    private static String withoutFastAccessKey(String keyword) {
+        if (keyword.endsWith(")")) {
+            int open = keyword.indexOf('(');
+            if (open >= 0) {
+                return keyword.substring(0, open);
+            }
+        }
+        return keyword;
+    }
+
+    /** A token that is only a key, such as {@code (t)}, names no state and is dropped. */
+    private static ArrayListSpaceSeparated keywords(String s) {
+        ArrayListSpaceSeparated list = new ArrayListSpaceSeparated();
+        for (String keyword: new ArrayListSpaceSeparated(s)) {
+            String stripped = withoutFastAccessKey(keyword);
+            if (stripped.length() > 0) {
+                list.add(stripped);
+            }
+        }
+        return list;
+    }
+
     public OrgStatesWorkflow(String s) {
         String st = s.trim();
 
@@ -27,15 +50,16 @@ public class OrgStatesWorkflow {
             int bar = st.indexOf('|');
 
             if (bar == -1) { // No vertical bar - use last keyword as done state
-                todoKeywords = new ArrayListSpaceSeparated(st);
-                String last = todoKeywords.remove(todoKeywords.size() - 1);
-
+                todoKeywords = keywords(st);
                 doneKeywords = new ArrayListSpaceSeparated();
-                doneKeywords.add(last);
+
+                if (!todoKeywords.isEmpty()) {
+                    doneKeywords.add(todoKeywords.remove(todoKeywords.size() - 1));
+                }
 
             } else {
-                todoKeywords = new ArrayListSpaceSeparated(st.substring(0, bar));
-                doneKeywords = new ArrayListSpaceSeparated(st.substring(bar+1));
+                todoKeywords = keywords(st.substring(0, bar));
+                doneKeywords = keywords(st.substring(bar+1));
             }
         }
     }
