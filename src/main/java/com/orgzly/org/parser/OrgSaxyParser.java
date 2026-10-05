@@ -1,6 +1,8 @@
 package com.orgzly.org.parser;
 
 import com.orgzly.org.OrgFile;
+import com.orgzly.org.OrgFileSettings;
+import com.orgzly.org.OrgStatesWorkflow;
 import com.orgzly.org.OrgHead;
 import com.orgzly.org.OrgPatterns;
 import com.orgzly.org.OrgStringUtils;
@@ -9,7 +11,9 @@ import com.orgzly.org.datetime.OrgRange;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +35,33 @@ class OrgSaxyParser extends OrgParser {
         this.listener = listener;
 
         this.statePattern = buildStatePattern(settings.todoKeywords, settings.doneKeywords);
+    }
+
+    private static final List<String> WORKFLOW_KEYWORDS =
+            Arrays.asList("TODO", "SEQ_TODO", "TYP_TODO");
+
+    /** A file declaring a workflow is read with it alone, as in org; others keep the caller's. */
+    private void useWorkflowFromFile(OrgFileSettings fileSettings) {
+        Set<String> todoKeywords = new HashSet<>();
+        Set<String> doneKeywords = new HashSet<>();
+
+        for (String keyword: WORKFLOW_KEYWORDS) {
+            List<String> values = fileSettings.getKeywordValues(keyword);
+
+            if (values == null) {
+                continue;
+            }
+
+            for (String value: values) {
+                OrgStatesWorkflow workflow = new OrgStatesWorkflow(value);
+                todoKeywords.addAll(workflow.getTodoKeywords());
+                doneKeywords.addAll(workflow.getDoneKeywords());
+            }
+        }
+
+        if (!todoKeywords.isEmpty() || !doneKeywords.isEmpty()) {
+            statePattern = buildStatePattern(todoKeywords, doneKeywords);
+        }
     }
 
     /**
@@ -83,6 +114,8 @@ class OrgSaxyParser extends OrgParser {
             /* Search for in-buffer setting if headings are not yet encountered. */
             if (currentElement == null) {
                 if (orgFile.getSettings().parseLine(line)) {
+                    useWorkflowFromFile(orgFile.getSettings());
+
                     /* Belongs to file. */
                     preface.append(line);
                     preface.append('\n');
