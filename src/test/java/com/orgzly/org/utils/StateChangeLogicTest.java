@@ -10,6 +10,7 @@ import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class StateChangeLogicTest {
 
@@ -71,5 +72,49 @@ public class StateChangeLogicTest {
         assertEquals("NEXT", scl.getState());
         assertEquals("<2018-02-06 Tue +7d>", scl.getScheduled().toString());
         assertNull(scl.getClosed());
+    }
+
+    @Test
+    public void testFromTodoToDoneWithoutLogging() {
+        StateChangeLogic scl = new StateChangeLogic(Collections.singleton("DONE"), LogDone.NONE);
+        scl.setState("DONE", "TODO", null, null);
+        assertEquals("DONE", scl.getState());
+        assertNull(scl.getClosed());
+    }
+
+    @Test
+    public void testFromDoneToCnclWithoutLoggingKeepsClosedTime() {
+        StateChangeLogic scl = new StateChangeLogic(Arrays.asList("DONE", "CNCL"), LogDone.NONE);
+        OrgRange closed = OrgRange.parse("[2018-02-06 Tue 10:00]");
+        scl.setState("CNCL", "DONE", null, null, closed, Collections.emptyList());
+        assertEquals("CNCL", scl.getState());
+        assertEquals("[2018-02-06 Tue 10:00]", scl.getClosed().toString());
+    }
+
+    @Test
+    public void testFromDoneToTodoWithoutLoggingClearsClosedTime() {
+        StateChangeLogic scl = new StateChangeLogic(Collections.singleton("DONE"), LogDone.NONE);
+        OrgRange closed = OrgRange.parse("[2018-02-06 Tue 10:00]");
+        scl.setState("TODO", "DONE", null, null, closed, Collections.emptyList());
+        assertEquals("TODO", scl.getState());
+        assertNull(scl.getClosed());
+    }
+
+    @Test
+    public void testRepeaterStillShiftsWithoutLogging() {
+        StateChangeLogic scl = new StateChangeLogic(Collections.singleton("DONE"), LogDone.NONE);
+        scl.setState("DONE", "NOTE", OrgRange.parse("<2018-02-06 Tue +7d>"), null);
+        assertTrue(scl.isShifted());
+        assertEquals("NOTE", scl.getState());
+        assertEquals("<2018-02-13 Tue +7d>", scl.getScheduled().toString());
+        assertNull(scl.getClosed());
+    }
+
+    @Test
+    public void testNoteLogsTheClosedTimeLikeTime() {
+        StateChangeLogic scl = new StateChangeLogic(Collections.singleton("DONE"), LogDone.NOTE);
+        scl.setState("DONE", "TODO", null, null);
+        assertEquals("DONE", scl.getState());
+        assertNotNull(scl.getClosed());
     }
 }
