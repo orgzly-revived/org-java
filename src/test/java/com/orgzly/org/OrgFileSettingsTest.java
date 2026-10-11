@@ -88,4 +88,18 @@ public class OrgFileSettingsTest {
         Assert.assertEquals("project", tags.get(1));
         Assert.assertEquals("Test", settings.getTitle());
     }
+
+    @Test
+    public void testKeywordNameIsCaseInsensitive() {
+        OrgFileSettings settings = OrgFileSettings.fromPreface("#+startup: nologdone\n");
+        Assert.assertEquals("nologdone", settings.getLastKeywordValue("STARTUP"));
+        Assert.assertEquals("nologdone", settings.getLastKeywordValue("startup"));
+    }
+
+    @Test
+    public void testKeywordCasesAreMerged() {
+        OrgFileSettings settings =
+                OrgFileSettings.fromPreface("#+STARTUP: overview\n#+startup: nologdone\n");
+        Assert.assertEquals(2, settings.getKeywordValues("startup").size());
+    }
 }

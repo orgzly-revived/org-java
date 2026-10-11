@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class StateChangeLogic {
     private final Collection<String> doneKeywords;
+    private final LogDone logDone;
 
     private String state;
 
@@ -23,7 +24,12 @@ public class StateChangeLogic {
     private boolean shifted = false;
 
     public StateChangeLogic(Collection<String> doneKeywords) {
+        this(doneKeywords, LogDone.TIME);
+    }
+
+    public StateChangeLogic(Collection<String> doneKeywords, LogDone logDone) {
         this.doneKeywords = doneKeywords;
+        this.logDone = logDone;
     }
 
     public void setState(
@@ -40,6 +46,18 @@ public class StateChangeLogic {
             String originalState,
             OrgRange scheduledTime,
             OrgRange deadlineTime,
+            List<OrgRange> timestamps) {
+
+        setState(targetState, originalState, scheduledTime, deadlineTime, null, timestamps);
+    }
+
+    /** {@link LogDone#NONE} keeps {@code closedTime} on a move into a done state. */
+    public void setState(
+            String targetState,
+            String originalState,
+            OrgRange scheduledTime,
+            OrgRange deadlineTime,
+            OrgRange closedTime,
             List<OrgRange> timestamps) {
 
         this.scheduled = scheduledTime;
@@ -85,15 +103,15 @@ public class StateChangeLogic {
                 } else {
                     /* Set state and closed time. */
                     state = targetState;
-                    closed = new OrgRange(new OrgDateTime(false));
+                    closed = closedOnDone(closedTime);
                 }
 
             } else { // done -> done
                 /*
-                 * Set the state and update the closed time.
+                 * Set the state and the closed time.
                  */
                 state = targetState;
-                closed = new OrgRange(new OrgDateTime(false));
+                closed = closedOnDone(closedTime);
             }
 
         } else { // -> to-do
@@ -103,6 +121,10 @@ public class StateChangeLogic {
             state = targetState;
             closed = null;
         }
+    }
+
+    private OrgRange closedOnDone(OrgRange current) {
+        return logDone == LogDone.NONE ? current : new OrgRange(new OrgDateTime(false));
     }
 
     public String getState() {
